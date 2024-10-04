@@ -1,5 +1,5 @@
 
-# Whisper Video Transcription Tool
+# Private Video Transcription Tool
 
 ## Overview
 
