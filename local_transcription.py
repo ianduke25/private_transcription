@@ -10,7 +10,7 @@ video_dir = input("Enter the path to the directory containing the video files: "
 transcript_dir = input("Enter the path to the directory where transcripts should be saved: ").strip()
 
 # Load the Whisper model
-model = whisper.load_model("large-v2")
+model = whisper.load_model("large-v2") # Ran a few tests, and observed notably better performance on large model. Worth the extra compute time!
 
 # Get list of only video files
 video_files = [f for f in os.listdir(video_dir) if f.endswith(('.mp4', '.mkv', '.avi', '.mov'))]
