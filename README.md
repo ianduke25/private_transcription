@@ -46,7 +46,6 @@ The script will then process each video file and generate corresponding transcri
 
 - **Local Processing Only:** This transcription tool performs all operations locally on your machine, meaning that **no data is sent to external servers**. This ensures that your video files and generated transcripts remain private.
 - **No Cloud Dependencies:** The Whisper model is downloaded and executed on your local hardware, avoiding the need for cloud-based APIs or third-party servers. This is particularly beneficial for users with sensitive or confidential video content.
-- **Temporary Storage:** The script does not create any temporary files that persist beyond the scope of the transcription process, minimizing the risk of unintended data exposure.
 
 ## Credits
 
