@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains comprehensive script of a video transcription tool utilizing OpenAI's Whisper model to transcribe video files into text. The transcription process includes both extracting spoken content from videos and creating timestamped transcripts, which are saved as text files. This tool is designed for individuals or organizations who need a simple, efficient, and local transcription solution, with a focus on ensuring privacy by avoiding cloud-based processing. The model used in provided code is specifically configured to handle videos with long periods of silence -- such as law enforcement body camera files.
+This repository contains comprehensive script of a video transcription tool utilizing OpenAI's Whisper model to transcribe video files into text. The transcription process includes both extracting spoken content from videos and creating timestamped transcripts. This tool is designed for individuals or organizations who need a simple, efficient, and local transcription solution, with a focus on ensuring privacy by avoiding cloud-based processing and/or API calls. The model used in provided code is specifically configured to handle videos with long periods of silence -- such as law enforcement body camera files.
 
 ## Features
 
