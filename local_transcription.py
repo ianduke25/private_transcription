@@ -49,6 +49,8 @@ for video_file in video_files:
             start_time = time.time()
             
             # Transcribe the video
+            # NOTE: This implementation  prints output of each file as they are processed. 
+            # If you would prefer to not use this feature, simply set verbose to False
             result = model.transcribe(video_path, verbose=True, language='English', condition_on_previous_text=False)
             
             # End timing the transcription
