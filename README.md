@@ -68,4 +68,3 @@ This tool is open-source and distributed under the MIT License. Feel free to mod
 
 - Built using [OpenAI Whisper](https://github.com/openai/whisper) for transcription.
 - FFmpeg is used for video and audio processing.
-# private_transcription
