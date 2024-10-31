@@ -20,6 +20,10 @@ This repository contains comprehensive script of a video transcription tool loca
   ```
   pip install openai-whisper
   ```
+- - Install **ffmpeg** to check for existence of audio streams: 
+  ```
+  pip install ffmpeg
+  ```
 ### Running the Script
 
 1. Clone or download this repository.
