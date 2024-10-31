@@ -2,6 +2,7 @@ print("Importing packages...")
 import os
 import whisper
 import time
+import subprocess
 from datetime import timedelta
 
 video_dir = input(f"\nEnter the path to the directory containing the video/audio files: ").strip()
@@ -42,6 +43,21 @@ for media_file in untranscribed_files:
 
     print(f"\nProcessing: {media_file}")
     media_path = os.path.join(video_dir, media_file)
+
+    # Check if the file has an audio stream using ffmpeg
+    try:
+        ffmpeg_command = [
+            'ffmpeg', '-i', media_path, '-hide_banner', '-vn', '-map', 'a:0', '-f', 'null', '-'
+        ]
+        result = subprocess.run(ffmpeg_command, stderr=subprocess.PIPE, text=True)
+        if "Stream #0:0" not in result.stderr:
+            print(f"\nNo audio stream found in {media_file}. Creating empty transcript.")
+            with open(transcript_path, 'w') as transcript_file:
+                transcript_file.write('')
+            continue
+    except Exception as e:
+        print(f"\nError checking audio stream for {media_file}: {e}")
+        continue
 
     start_time = time.time()
 
