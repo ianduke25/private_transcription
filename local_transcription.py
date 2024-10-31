@@ -1,85 +1,67 @@
+print("Importing packages...")
 import os
 import whisper
-import subprocess
 import time
-from subprocess import CalledProcessError, SubprocessError
 from datetime import timedelta
 
-# Accept user input for directories
-video_dir = input("Enter the path to the directory containing the video files: ").strip()
-transcript_dir = input("Enter the path to the directory where transcripts should be saved: ").strip()
+video_dir = input(f"\nEnter the path to the directory containing the video/audio files: ").strip()
+transcript_dir = input(f"\nEnter the path to the directory where transcripts should be saved: ").strip()
 
-# Load the Whisper model
-model = whisper.load_model("large-v2") # This model works best, but uses quite a bit of RAM. Feel free to play with other model sizes!
+while True:
+    model_size = input(f"\nEnter the preferred Whisper model size (tiny, base, small, medium, large, large-v2): ").strip()
+    try:
+        model = whisper.load_model(model_size)
+        break
+    except RuntimeError as e:
+        print(f"\nError loading Whisper model: {e}. Please enter a valid model size.")
 
-# Get list of only video files
-video_files = [f for f in os.listdir(video_dir) if f.endswith(('.mp4', '.mkv', '.avi', '.mov', '.MP4'))]
+file_extensions = ('.mp4', '.mkv', '.avi', '.mov', '.mp3', '.wav', '.flac', '.aac', '.m4a')
+try:
+    media_files = [f for f in os.listdir(video_dir) if f.lower().endswith(file_extensions)]
+except FileNotFoundError:
+    print(f"\nThe specified video/audio directory does not exist.")
+    exit(1)
 
-# Create transcript directory if it doesn't exist
 if not os.path.exists(transcript_dir):
     os.makedirs(transcript_dir)
 
-# Get list of existing transcript files
 existing_transcripts = [f.replace('.txt', '') for f in os.listdir(transcript_dir) if f.endswith('.txt')]
 
-# Calculate total size of untranscribed files
-untranscribed_files = [f for f in video_files if os.path.splitext(f)[0] not in existing_transcripts]
-total_size = sum(os.path.getsize(os.path.join(video_dir, f)) for f in untranscribed_files)
+untranscribed_files = [f for f in media_files if os.path.splitext(f)[0] not in existing_transcripts]
+if not untranscribed_files:
+    print(f"\nNo untranscribed files found. All files have already been processed :)")
+    exit(0)
 
-# Process each untranscribed video file
-for video_file in untranscribed_files:
-    video_name = os.path.splitext(video_file)[0]
+for media_file in untranscribed_files:
+    media_name = os.path.splitext(media_file)[0]
+    transcript_path = os.path.join(transcript_dir, f"{media_name}.txt")
 
-    print(f"Processing: {video_file}")
-    video_path = os.path.join(video_dir, video_file)
-
-    # Check if the video contains an audio stream
-    skip_audio_check = False
-    try:
-        # Using ffprobe to check for audio streams
-        cmd = ['ffprobe', '-i', video_path, '-show_streams', '-select_streams', 'a', '-loglevel', 'error']
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        if not result.stdout.strip():
-            # No audio stream found
-            transcript_path = os.path.join(transcript_dir, f"{video_name}.txt")
-            with open(transcript_path, 'w') as transcript_file:
-                transcript_file.write("")  # Create an empty file
-            print(f"No audio stream found. Empty transcript created: {transcript_path}")
-            continue
-    except FileNotFoundError:
-        # ffprobe not found, skipping audio check
-        skip_audio_check = True
-        print("ffprobe not found. Skipping audio stream check.")
-    except SubprocessError as e:
-        print(f"Error occurred while checking audio stream for {video_file}: {e}")
+    if os.path.exists(transcript_path):
+        print(f"\nTranscript already exists for {media_file}. Skipping transcription.")
         continue
 
-    # Start timing the transcription
+    print(f"\nProcessing: {media_file}")
+    media_path = os.path.join(video_dir, media_file)
+
     start_time = time.time()
 
-    # Open the transcript file in append mode to write segments as they are processed
-    transcript_path = os.path.join(transcript_dir, f"{video_name}.txt")
     with open(transcript_path, 'w') as transcript_file:
         try:
-            # Transcribe the video and write segments as they are processed
-            result = model.transcribe(video_path, verbose=True, language='English', condition_on_previous_text=False,
-                                      fp16=False, task="transcribe")
-            for segment in result['segments']:
+            result = model.transcribe(media_path, language='English', condition_on_previous_text=False, fp16=False, task="transcribe")
+            segments = result.get('segments', [])
+            for segment in segments:
                 start_time_str = str(timedelta(seconds=int(segment['start'])))
                 end_time_str = str(timedelta(seconds=int(segment['end'])))
-                transcript_file.write(f"[{start_time_str} - {end_time_str}] {segment['text']}\n")
+                segment_text = f"[{start_time_str} - {end_time_str}] {segment['text']}"
+                transcript_file.write(f"{segment_text}\n")
+                print(segment_text)
         except Exception as e:
-            print(f"Error during transcription for {video_file}: {e}")
+            print(f"\nError during transcription for {media_file}: {e}")
             continue
 
-    # End timing the transcription
     end_time = time.time()
     transcription_time = end_time - start_time
+    minutes, seconds = divmod(transcription_time, 60)
+    print(f"\nTranscription time for {media_file}: {int(minutes)} minutes and {int(seconds)} seconds")
 
-    # Calculate and display estimated remaining time
-    file_size = os.path.getsize(video_path)
-    total_size -= file_size
-    estimated_remaining_time = (transcription_time / file_size) * total_size if total_size > 0 else 0
-    print(f"Estimated remaining time: {estimated_remaining_time / 60:.2f} minutes")
-
-print("Transcription process completed.")
+print(f"\nTranscription process completed :)")
