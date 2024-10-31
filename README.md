@@ -20,10 +20,6 @@ This repository contains comprehensive script of a video transcription tool loca
   ```
   pip install openai-whisper
   ```
-- Install the **ffmpeg library**: 
-  ```
-  pip install ffmpeg-python
-  ```
 ### Running the Script
 
 1. Clone or download this repository.
